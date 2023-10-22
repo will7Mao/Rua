@@ -228,7 +228,6 @@ import TickleVue from "./Tickle.vue";
 import Focus from "./Focus.vue";
 import { Tickle, TickleFocusRecord } from "./models/Tickle";
 import { Pomodoro } from "./models/PomodoroLog";
-import { el } from "element-plus/es/locale";
 
 const focusDialogVisible = ref(false);
 const floatWindowFlag = ref(false);
