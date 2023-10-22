@@ -1,162 +1,200 @@
 <template>
-  <div
-    @click="
-      visible = true;
-      console.log(editTickle.id);
-    "
-    style="height: 100%"
-    :class="['matrix-border']"
-  >
-    <el-row
-      justify="center"
-      :style="{
-        backgroundColor: editTickle.color,
-      }"
-      style="min-height: 20px; padding: 3px"
+  <!-- tickle wrapper -->
+  <div style="height: 100%; background-color: #ededed; border: 1px solid #fff">
+    <div
+      class="tickle_content"
+      @click="tickleDraweVisableEvent"
+      v-if="editTickle != undefined && editTickle.status == 1"
+      :style="{ 'background-color': editTickle.color }"
     >
-      <el-text
-        size="large"
-        :style="{ color: editTickle.color ? 'white' : 'black' }"
-        truncated
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          width: 100%;
+          position: relative;
+          color: #fff;
+        "
       >
-        {{ editTickle.title }}
-      </el-text>
-    </el-row>
-    <el-space direction="vertical">
-      <el-text>
-        {{ formatDateTime(editTickle.deadline) }}
-      </el-text>
-    </el-space>
-  </div>
-  <el-drawer v-model="visible" :show-close="false">
-    <template #header="{ close, titleId, titleClass }">
-      <h4 :id="titleId" :class="titleClass">New　tickle</h4>
-      <el-button type="danger" @click="close">
-        <el-icon class="el-icon--left"><CircleCloseFilled /></el-icon>
-        Close
-      </el-button>
-    </template>
-    <el-form :model="editTickle" label-width="120px" label-position="left">
-      <el-form-item label="title">
-        <el-input v-model="editTickle.title" />
-      </el-form-item>
-      <el-form-item label="description">
-        <el-input v-model="editTickle.description" />
-      </el-form-item>
-      <el-form-item label="deadline">
-        <el-date-picker
-          v-model="editTickle.deadline"
-          type="date"
-          placeholder="set the deadline"
-          style="width: 100%"
-        />
-      </el-form-item>
-      <el-form-item label="color">
-        <el-color-picker
-          v-model="editTickle.color"
-          show-alpha
-          :predefine="predefineColors"
-        />
-      </el-form-item>
-      <el-form-item label="focus on">
-        <el-button @click="dialogVisible = true"> dive into </el-button>
-      </el-form-item>
-      <el-timeline>
-        <el-timeline-item
-          v-for="(activity, index) in editTickle.tickleFocusRecords"
-          :key="index"
-          :timestamp="activity.startTime"
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0px 5px;
+          "
         >
-          {{ activity.duration / (1000 * 60 * 60) + "h" }}
-        </el-timeline-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitTickle">Create</el-button>
-          <el-button @click="visible = false">Cancel</el-button>
-        </el-form-item>
-      </el-timeline>
-    </el-form>
-  </el-drawer>
-
-  <el-dialog
-    v-model="dialogVisible"
-    :title="'Tickle: ' + editTickle.title"
-    style="width: 100vw; height: 100vh; margin: 0px"
-    :before-close="handleClose"
-  >
-    <span style="font-size: 50px">{{ formatTime(currentTime) }}</span>
-    <el-row justify="center">
-      <el-text v-if="tomatoStauts() == true" type="danger"> 番茄中 </el-text>
-      <el-text v-if="tomatoStauts() == false" type="primary"> 休息中 </el-text>
-    </el-row>
-    <el-row
-      v-for="(item, index) in TomatoRecords"
-      :key="index"
-      justify="center"
-    >
-      <div style="width: 80%; padding: 5px">
-        <el-progress :percentage="parseInt(getProgress(item))">
-          <span>{{ getProgress(item) + "%" }}</span>
-        </el-progress>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              overflow: hidden;
+              flex-wrap: nowrap;
+            "
+          >
+            <el-checkbox style="width: 12px; padding-left: 5px" />
+            <span
+              style="
+                display: flex;
+                padding-left: 5px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                flex: 1;
+                max-width: 80%;
+                font-weight: bold;
+                font-size: 15px;
+                white-space: nowrap;
+              "
+              >{{ editTickle.title ? "#" + editTickle.title : "" }}
+            </span>
+          </div>
+          <el-icon
+            :style="{
+              color: editTickle.color !== '' ? '#fff' : '#000',
+            }"
+            style="width: 15px; padding-right: 10px"
+          >
+            <MoreFilled />
+          </el-icon>
+        </div>
+        <div style="display: flex; flex: 1">
+          <div
+            style="
+              display: flex;
+              flex: 1;
+              flex-direction: column;
+              justify-content: space-between;
+              padding-bottom: 10px;
+              padding-left: 5px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                overflow: hidden;
+                flex-direction: column;
+                padding-left: 5px;
+              "
+            >
+              <el-text
+                truncated
+                style="
+                  display: flex;
+                  color: #fff;
+                  font-weight: bold;
+                  font-size: 12px;
+                  align-self: flex-start;
+                "
+              >
+                {{ editTickle.description }}
+              </el-text>
+            </div>
+            <div style="display: flex; padding-left: 5px">
+              <el-text
+                truncated
+                style="
+                  display: flex;
+                  color: #efefef;
+                  font-weight: bold;
+                  font-size: 12px;
+                  align-self: flex-start;
+                "
+              >
+                deadline:
+              </el-text>
+              <span style="display: flex; font-size: 10px; padding-left: 5px">
+                {{
+                  editTickle.deadline === undefined
+                    ? "-"
+                    : formatTime(editTickle.deadline)
+                }}</span
+              >
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              width: 30%;
+              justify-content: flex-start;
+              align-items: flex-start;
+            "
+          >
+            <div style="display: flex; position: relative">
+              <span
+                style="
+                  font-size: 55px;
+                  color: #fff;
+                  font-weight: 900;
+                  line-height: 0.8;
+                "
+              >
+                {{ editTickle.countFocusTime().value || "0" }}
+              </span>
+              <div style="position: absolute; top: 16%; right: -66%">
+                <span style="font-size: 8px">
+                  {{ editTickle.countFocusTime().unit || "min" }}
+                </span>
+              </div>
+              <div style="position: absolute; bottom: -20px">
+                <span style="font-size: 10px">focus</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 装饰物 -->
+        <div class="tickle_decorator" :style="getTickleDecorator()"></div>
       </div>
-    </el-row>
-    <el-row justify="center">
-      <el-button @click="addNewTomato">add new tomato loop</el-button>
-    </el-row>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="focusConfirm"> Confirm </el-button>
-      </span>
-    </template>
-  </el-dialog>
+    </div>
+    <div
+      class="tickle_content"
+      @click="tickleDraweVisableEvent"
+      v-if="
+        editTickle == undefined ||
+        (editTickle != undefined && editTickle.status == 0)
+      "
+    >
+      <el-row style="height: 100%"> </el-row>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, defineEmits } from "vue";
 import { ElButton, ElDrawer } from "element-plus";
-import { CircleCloseFilled, Bell, ElementPlus } from "@element-plus/icons-vue";
-const visible = ref(false);
+import { Tickle, Duration } from "./models/Tickle";
+import { PomodoroLog, Pomodoro } from "./models/PomodoroLog";
+
+import {
+  CircleCloseFilled,
+  Bell,
+  ElementPlus,
+  MoreFilled,
+  Plus,
+  Clock,
+} from "@element-plus/icons-vue";
 import { ElMessageBox } from "element-plus";
 
-const dialogVisible = ref(false);
-
-const handleClose = (done: () => void) => {
-  ElMessageBox.confirm("Are you sure to close this dialog?")
-    .then(() => {
-      done();
-    })
-    .catch(() => {
-      // catch error
-    });
-};
-
-var editTickle: Tickle = reactive({
-  id: 0,
-  title: "",
-  description: "",
-  deadline: undefined,
-  tickleFocusRecords: [],
-  color: "",
+// props
+const props = defineProps({
+  editTickle: {
+    type: Tickle,
+    required: false,
+  },
+  id: {
+    type: Number,
+    required: true,
+  },
 });
 
-interface Tickle {
-  id: number;
-  title: string;
-  description: string;
-  deadline?: Date;
-  tickleFocusRecords: TickleFocusRecord[];
-  color: "";
-}
+const emit = defineEmits(["tickleDrawerVisableEvent"]);
 
-interface TickleFocusRecord {
-  id: number;
-  startTime: Date;
-  duration: number;
-}
+// 父容器传入
+const editTickle = computed(() => props.editTickle as Tickle);
 
-function submitTickle() {
-  visible.value = false;
-  console.log(editTickle);
+function tickleDraweVisableEvent() {
+  console.log("click tickle");
+  emit("tickleDrawerVisableEvent", props.id);
 }
 
 function formatDateTime(date?: Date): string {
@@ -185,6 +223,7 @@ function formatTime(date?: Date): string {
 }
 
 const color = ref("rgba(255, 69, 0, 0.68)");
+
 const predefineColors = ref([
   "#ff4500",
   "#ff8c00",
@@ -193,93 +232,62 @@ const predefineColors = ref([
   "#00ced1",
   "#1e90ff",
   "#c71585",
-  "rgba(255, 69, 0, 0.68)",
-  "rgb(255, 120, 0)",
-  "hsv(51, 100, 98)",
-  "hsva(120, 40, 94, 0.5)",
-  "hsl(181, 100%, 37%)",
-  "hsla(209, 100%, 56%, 0.73)",
   "#c7158577",
 ]);
 
-const state = reactive({
-  date: new Date(),
-});
+// 事件
 
-interface TomatoRecord {
-  startTime: Date;
-  endTime: Date;
-  // 0 未完成 1已完成
-  status: number;
-}
-
-function getProgress(record: TomatoRecord): string {
-  return (
-    (state.date.getTime() - record.startTime.getTime()) /
-    (record.endTime.getTime() - record.startTime.getTime())
-  ).toFixed(3);
-}
-
-function addNewTomato() {
-  // 如果存在未完成的番茄钟，则返回
-  if (
-    TomatoRecords.length > 0 &&
-    TomatoRecords[TomatoRecords.length - 1].status === 0
-  ) {
-    return;
+//装饰物
+function getTickleDecorator() {
+  var color = editTickle.color !== "" ? "#fff" : predefineColors.value;
+  Math.floor(Math.random() * predefineColors.value.length);
+  switch (editTickle.id % 2) {
+    // 圆形
+    case 0:
+      return {
+        "border-radius": "50%",
+        width: "50vh",
+        height: "50vh",
+        top: "15px",
+        right: "-100px",
+        opacity: "0.5",
+        "background-color": color,
+      };
+    // 侧线
+    case 1:
+      return {
+        width: "2px",
+        height: "10px",
+        top: "1px",
+        right: "-2px",
+        opacity: "0.5",
+        // 颜色
+        "background-color": color,
+      };
   }
-  TomatoRecords.push({
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 25 * 60 * 1000),
-    status: 0,
-  });
 }
-
-var TomatoRecords: TomatoRecord[] = reactive([]);
-
-const currentTime = computed(() => {
-  return state.date;
-});
-
-function tomatoStauts(): boolean {
-  // 是否存在未完成的番茄钟
-  if (TomatoRecords.length > 0) {
-    if (TomatoRecords[TomatoRecords.length - 1].status === 0) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function focusConfirm() {
-  dialogVisible.value = false;
-  // 计算投入的时间生成投入记录的记录
-  if (TomatoRecords.length >= 1) {
-    // 计算番茄投入的时间,并且相加
-    const duration = TomatoRecords.map((item) => {
-      return item.startTime.getTime() - item.endTime.getTime();
-    }).reduce((a, b) => a + b);
-    const focusRecord: TickleFocusRecord = {
-      id: 0,
-      startTime: TomatoRecords[0].startTime,
-      duration: duration,
-    };
-    editTickle.tickleFocusRecords.push(focusRecord);
-    console.log(editTickle.tickleFocusRecords);
-  }
-  // 清空番茄钟记录
-  TomatoRecords = [];
-}
-setInterval(() => {
-  state.date = new Date();
-}, 1000);
 </script>
 
 <style scoped>
-.matrix-border {
-  border: 1px solid var(--el-border-color);
+.tickle_content {
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  min-height: 105px;
 }
-.box-shadow-lighter {
-  box-shadow: var(--el-box-shadow-light);
+
+.tickle_decorator {
+  position: absolute;
+}
+
+:global(.el-dialog__body) {
+  padding: 0px !important;
+}
+
+:global(.el-dialog__header) {
+  margin: 0px !important;
+  padding: 0px !important;
 }
 </style>

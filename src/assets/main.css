@@ -1,0 +1,12 @@
+.box-shadow-lighter {
+    box-shadow: var(--el-box-shadow-light);
+}
+
+body {
+    margin: 0;
+}
+
+.el-menu-item.is-active {
+    border-right: solid 5px #409EFF;
+    background-color: #e8f0f7;
+}
